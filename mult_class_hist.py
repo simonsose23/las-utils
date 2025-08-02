@@ -3,7 +3,8 @@ import os
 import laspy
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
+import math
+from matplotlib import colormaps
 from progressbar import progressbar
 
 # MAT_LIST = [
@@ -77,14 +78,27 @@ if __name__ == '__main__':
 
         avg_hists.append(overall_hist)
 
-    fig, axes = plt.subplots(1, len(pc_folders), figsize=(len(pc_folders) * 5, 5), sharey=True)
+    num_plots = len(pc_folders)
+    num_cols = 2
+    colors = [ colormaps['Set2'](float(i)) for i in np.linspace(0, 1, num=len(MAT_LIST)) ]
+
+    fig, axes = plt.subplots(math.ceil(num_plots/num_cols), num_cols, figsize=(5 * num_cols, 5 * math.ceil(num_plots/num_cols)), sharey=True)
     print(avg_hists)
 
-    for i, folder in enumerate(pc_folders):
-        axes[i].bar(MAT_LIST, avg_hists[i], color='blue')
-        axes[i].set_title(os.path.split(folder)[1])
-        axes[i].set_ylabel("Frequency")
-        axes[i].set_xticklabels(MAT_LIST, rotation=45, ha='right')
+    for i, _zip in enumerate(zip(axes.flat, pc_folders)):
+        ax, folder = _zip
+
+        ax.bar(MAT_LIST, avg_hists[i], color=colors, edgecolor='black')
+        ax.set_title(os.path.split(folder)[1])
+        ax.set_ylabel("Density")
+        ax.set_xticklabels(MAT_LIST, rotation=45, ha='right')
+        ax.grid(axis='y')
+        ax.set_yscale('log')
+
+
+    # remove unused axes
+    for ax in axes.flat[num_plots:]:
+        ax.remove()
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig('plot.pdf', format='pdf')
