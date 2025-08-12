@@ -1,0 +1,4 @@
+pc_folder: /SCB/test_realpcs_folder/
+merge_values: [1, 2, 3]
+from_scalar: 'specificclassid'
+onto_scalar: 'semclassid'
