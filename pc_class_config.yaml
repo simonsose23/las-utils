@@ -3,3 +3,4 @@ cluster:
   - [0, 1, 2]
   - [3, 4, 5, 6]
 output_dir: /mnt/SUPERCOOL/propre_pc_processed/
+remap: null
