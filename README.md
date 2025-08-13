@@ -32,6 +32,7 @@ Configuration:
 |`from_scalar`|Name of scalar field to read the values from|
 |`onto_scalar`|Name of scalar field to write the values to|
 |`merge_values`|Values from `from_scalar` to write to `onto_scalar`|
+|`onto_values`|Optional. Values of `onto_scalar` to write values `from_scalar` onto. It can be thought of as a mask to `onto_scalar`.|
 |`write_offset`|Integer value by which to offset `from_scalar` values before writing them into `onto_scalar`. Should be `max(point_cloud['onto_scalar']) + 1`|
 
 ## Multi-Point-Cloud Class Histogram
