@@ -8,18 +8,16 @@ from progressbar import progressbar
 
 SUPPORTED_TYPES = ('.las', '.laz')
 
-def merge_scalar(filepath, target_file_path, merge_scalar, values_to_merge, onto_scalar):
+def merge_scalar(filepath, target_file_path, merge_scalar, values_to_merge, onto_scalar, write_offset):
     with laspy.open(filepath) as fh:
         las = fh.read()
         pr = las.points
-
-        onto_scalar_max = np.max(pr[onto_scalar])
 
         # create mask off all points that are labeled with a value to merge
         points_to_write = np.isin(pr[merge_scalar], values_to_merge)
 
         # offset all merge_scalar values by maximum onto_scalar value + 1 to not write into onto_scalar range
-        pr[merge_scalar] += onto_scalar_max + 1
+        pr[merge_scalar] += write_offset
 
         pr[onto_scalar][points_to_write] = pr[merge_scalar][points_to_write]
 
@@ -39,7 +37,7 @@ def main(cfg: DictConfig) -> None:
     for pc_path in progressbar(pc_paths):
         basepath, filetype = pc_path.split('.')
 
-        merge_scalar(pc_path, f'{basepath}-merged.{filetype}', cfg['from_scalar'], cfg['merge_values'], cfg['onto_scalar'])
+        merge_scalar(pc_path, f'{basepath}-merged.{filetype}', cfg['from_scalar'], cfg['merge_values'], cfg['onto_scalar'], int(cfg['write_offset']))
 
 if __name__ == '__main__':
     main()
