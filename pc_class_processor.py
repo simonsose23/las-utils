@@ -34,7 +34,9 @@ Compress classes of given point cloud in LAS format.
 
 We rearrange the class ids so that there are no gaps in the numbering.
 '''
-def rearrange_classes(pr, scalar_field, *, classes_to_keep, class_mapping):
+def rearrange_classes(las, scalar_field, *, classes_to_keep, class_mapping, rename):
+    pr = las.points
+
     classes_to_keep.sort()
 
     # create class mapping if it does not exist
@@ -46,9 +48,14 @@ def rearrange_classes(pr, scalar_field, *, classes_to_keep, class_mapping):
 
         print(class_mapping)
 
+    new_class_data = [ class_mapping[int(old_class)] for old_class in pr[scalar_field] ]
+
     # apply class mapping to point record
-    pr[scalar_field] = [ class_mapping[int(old_class)] for old_class in pr[scalar_field] ]
-    #pr['MaterialID'] = np.vectorize(class_mapping.get)(pr['MaterialID'])
+    if rename:
+        pr[rename] = new_class_data
+        las.remove_extra_dim(scalar_field)
+    else:
+        pr[scalar_field] = new_class_data
 
 
 @hydra.main(version_base=None, config_path='.')
@@ -102,7 +109,11 @@ def main(cfg: DictConfig) -> None:
         with laspy.open(wrk) as fh:
             las = fh.read()
 
-            rearrange_classes(las.points, cfg['scalar_field'], classes_to_keep=list(existing_classes), class_mapping=cfg['remap'])
+            rearrange_classes(las,
+                              cfg['scalar_field'],
+                              classes_to_keep=list(existing_classes),
+                              class_mapping=cfg['remap'],
+                              rename=cfg['rename'])
 
             las.write(tgt)
 
