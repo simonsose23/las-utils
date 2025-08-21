@@ -15,7 +15,7 @@ renamed to x.
 
 if rename is set, the scalar_field is renamed to rename.
 '''
-def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_value):
+def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_class):
     # TODO: Adapt readme
     pr = las.points
 
@@ -39,14 +39,14 @@ def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_value):
 
         pr[scalar_field][mask] = [key]
 
-    if default_value:
-        pr[scalar_field][np.logical_not(overall_mask)] = default_value
+    if default_class:
+        pr[scalar_field][np.logical_not(overall_mask)] = default_class
 
     if rename:
         pr[rename] = pr[scalar_field]
         las.remove_extra_dim(scalar_field)
             
-    if False in overall_mask and not default_value:
+    if False in overall_mask and not default_class:
         print("Warning: Some values have not been remapped")
 
 @hydra.main(version_base=None, config_path='configs/processor')
@@ -78,7 +78,7 @@ def main(cfg: DictConfig) -> None:
             las = fh.read()
             
             if 'cluster' in cfg:
-                cluster_classes(las, cfg['cluster'], cfg['scalar_field'], rename=cfg['rename'], default_value=cfg['default_value'])
+                cluster_classes(las, cfg['cluster'], cfg['scalar_field'], rename=cfg['rename'], default_class=cfg['default_class'])
 
             las.write(tgt)
 
