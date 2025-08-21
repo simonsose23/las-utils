@@ -1,0 +1,9 @@
+input_dir: /SCB/Datasets/PL3D
+output_dir: /SCB/Datasets/PL3D_processed
+cluster:
+  '0': ['000000000']
+  '1': ['100000000']
+  '2': ['2xxxxxxxx']
+  '3': ['3xxxxxxxx']
+scalar_field: class
+rename: classification

@@ -10,59 +10,39 @@ SUPPORTED_TYPES = ('.las', '.laz')
 '''
 Cluster classes of given point cloud according to given cluster scheme.
 
-For every element x in the clusters array, all the classes y in x will be
+For every key x, there is an array Y. For every element y captured by the clusters array Y, all the classes y in Y will be
 renamed to x.
+
+if rename is set, the scalar_field is renamed to rename.
 '''
-def cluster_classes(pr, clusters, scalar_field):
-    for cluster in clusters:
-        new_id = np.min(cluster)
-
-        mask = np.isin(pr[scalar_field], cluster)
-
-        pr[scalar_field][mask] = [new_id]
-
-
-'''
-We determine all classes that are contained in the point clouds in the named folder.
-'''
-def get_existing_classes(pr, scalar_field) -> set:
-    return set([ int(x) for x in np.unique(pr[scalar_field]) ])
-    
-
-'''
-Compress classes of given point cloud in LAS format.
-
-We rearrange the class ids so that there are no gaps in the numbering.
-'''
-def rearrange_classes(las, scalar_field, *, classes_to_keep, class_mapping, rename):
+def cluster_classes(las, cluster_dict, scalar_field, *, rename):
+    # TODO: Adapt readme
     pr = las.points
 
-    classes_to_keep.sort()
+    for key, cluster_expr in cluster_dict.items():
+        # expand cluster expressions to literal cluster
+        lit_cluster = []
 
-    # create class mapping if it does not exist
-    if not class_mapping:
-        class_mapping = dict()
+        for ce in cluster_expr:
+            if 'x' in str(ce):
+                lit_cluster += range(int(ce.replace('x', '0')), int(ce.replace('x', '9')) + 1)
+            else:
+                lit_cluster.append(int(ce))
 
-        for i, key in enumerate(classes_to_keep):
-            class_mapping[key] = i
+        # create mask marking all the entries captured by the cluster
+        mask = np.isin(pr[scalar_field], lit_cluster)
 
-        print(class_mapping)
+        pr[scalar_field][mask] = [key]
 
-    new_class_data = [ class_mapping[int(old_class)] for old_class in pr[scalar_field] ]
-
-    # apply class mapping to point record
     if rename:
-        pr[rename] = new_class_data
+        pr[rename] = pr[scalar_field]
         las.remove_extra_dim(scalar_field)
-    else:
-        pr[scalar_field] = new_class_data
-
+            
 
 @hydra.main(version_base=None, config_path='configs/processor')
 def main(cfg: DictConfig) -> None:
     # 0. Collect all las files to process
     src_las_files = []
-    wrk_las_files = []
     tgt_las_files = []
 
     # get all las files
@@ -78,50 +58,19 @@ def main(cfg: DictConfig) -> None:
                 basepath, filetype = full_name.split('.')
 
                 src_las_files.append(full_name)
-                wrk_las_files.append(f'{basepath}-processing.{filetype}')
                 tgt_las_files.append(f'{basepath}-processed.{filetype}'.replace(cfg['input_dir'], cfg['output_dir'], 1))
 
     print("Clustering...")
     
     # 1. Cluster
-    for wrk, src in progressbar(zip(wrk_las_files, src_las_files)):
+    for tgt, src in progressbar(zip(tgt_las_files, src_las_files)):
         with laspy.open(src) as fh:
             las = fh.read()
             
             if 'cluster' in cfg:
-                cluster_classes(las.points, cfg['cluster'], cfg['scalar_field'])
-
-            las.write(wrk)
-
-
-    print('Testing classes...')
-    # 2. test
-    existing_classes = set()
-
-    if not cfg['remap']:
-        for wrk in progressbar(wrk_las_files):
-            with laspy.open(wrk) as fh:
-                las = fh.read()
-
-                existing_classes = existing_classes | get_existing_classes(las.points, cfg['scalar_field'])
-
-    print("Rearranging classes...")
-    # 3. rearrange
-    for wrk, tgt in progressbar(zip(wrk_las_files, tgt_las_files)):
-        with laspy.open(wrk) as fh:
-            las = fh.read()
-
-            rearrange_classes(las,
-                              cfg['scalar_field'],
-                              classes_to_keep=list(existing_classes),
-                              class_mapping=cfg['remap'],
-                              rename=cfg['rename'])
+                cluster_classes(las, cfg['cluster'], cfg['scalar_field'], rename=cfg['rename'])
 
             las.write(tgt)
-
-        # 4. delete the intermediary file
-        os.remove(wrk)
-
 
 if __name__ == '__main__':
     main()
