@@ -1,0 +1,16 @@
+input_dir: /SCB/Datasets/PL3D
+output_dir: /SCB/Datasets/PL3D_processed
+cluster:
+  '0': ['3020302xx', '3020303xx']
+  '1': ['202020000']
+  '2': ['202030000', '202050000', '2020400xx']
+  '3': ['203000000']
+  '4': ['202060000']
+  '5': ['3020204xx']
+  '6': ['3020205xx']
+  '7': ['3030402xx']
+  '8': ['304020000']
+  '9': ['3040000xx', '30400001xx', '3040003xx', '3040004xx']
+scalar_field: class
+rename: classification
+default_class: 10
