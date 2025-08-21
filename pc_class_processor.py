@@ -19,6 +19,9 @@ def cluster_classes(las, cluster_dict, scalar_field, *, rename):
     # TODO: Adapt readme
     pr = las.points
 
+    # create overall_mask to track points that have not been touched in the end
+    overall_mask = np.full(len(pr), False)
+
     for key, cluster_expr in cluster_dict.items():
         # expand cluster expressions to literal cluster
         lit_cluster = []
@@ -32,12 +35,16 @@ def cluster_classes(las, cluster_dict, scalar_field, *, rename):
         # create mask marking all the entries captured by the cluster
         mask = np.isin(pr[scalar_field], lit_cluster)
 
+        overall_mask = np.logical_or(overall_mask, mask)
+
         pr[scalar_field][mask] = [key]
 
     if rename:
         pr[rename] = pr[scalar_field]
         las.remove_extra_dim(scalar_field)
             
+    if False in overall_mask:
+        print("Warning: Some values have not been remapped")
 
 @hydra.main(version_base=None, config_path='configs/processor')
 def main(cfg: DictConfig) -> None:
