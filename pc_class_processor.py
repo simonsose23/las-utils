@@ -58,7 +58,7 @@ def rearrange_classes(las, scalar_field, *, classes_to_keep, class_mapping, rena
         pr[scalar_field] = new_class_data
 
 
-@hydra.main(version_base=None, config_path='.')
+@hydra.main(version_base=None, config_path='configs/processor')
 def main(cfg: DictConfig) -> None:
     # 0. Collect all las files to process
     src_las_files = []
@@ -93,15 +93,17 @@ def main(cfg: DictConfig) -> None:
 
             las.write(wrk)
 
+
     print('Testing classes...')
     # 2. test
     existing_classes = set()
 
-    for wrk in progressbar(wrk_las_files):
-        with laspy.open(wrk) as fh:
-            las = fh.read()
+    if not cfg['remap']:
+        for wrk in progressbar(wrk_las_files):
+            with laspy.open(wrk) as fh:
+                las = fh.read()
 
-            existing_classes = existing_classes | get_existing_classes(las.points, cfg['scalar_field'])
+                existing_classes = existing_classes | get_existing_classes(las.points, cfg['scalar_field'])
 
     print("Rearranging classes...")
     # 3. rearrange
