@@ -18,6 +18,7 @@ The operations are specified by a Hydra configuration file:
 |`scalar_field`|Name of scalar field that contains the classification info. If in doubt, use `classification`|
 |`cluster`|Dictionary with value pairs $(x, Y)$. $Y=[y_1, \dots, y_n]$, where every $y_i$ with $1\leq i \leq n$ is a wildcard or an class id that should be clustered together. The resulting class will have $x$ as class ID. If you want to cluster a lot of classes together, you can use a wildcard: Replacing the last digits of the id with 'x' will include all possible ids that start with the non-x digits. For example, '19x' will include all ids from 190 to 199.|
 |`rename`|Optional. Name to rename the scalar field that contains the classification info to. If using a scalar name that is reserved by the LAS standard, keep in mind the possible values (for example, 'classification' is only assigned 5 bits, so only values 0-31)|
+|`default_value`|Optional. Class to assign to points that have not been remapped
 
 ## Point Cloud Scalar Merger: `pc_scalar_merger.py`
 
