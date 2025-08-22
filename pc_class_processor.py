@@ -20,7 +20,7 @@ def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_class):
     pr = las.points
 
     # create overall_mask to track points that have not been touched in the end
-    overall_mask = np.full(len(pr), False)
+    overall_mask = np.full(len(pr), np.bool(False))
 
     for key, cluster_expr in cluster_dict.items():
         # expand cluster expressions to literal cluster
@@ -28,25 +28,28 @@ def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_class):
 
         for ce in cluster_expr:
             if 'x' in str(ce):
-                lit_cluster += range(int(ce.replace('x', '0')), int(ce.replace('x', '9')) + 1)
+                lit_cluster += [np.int32(x) for x in range(int(ce.replace('x', '0')), int(ce.replace('x', '9')) + 1)]
             else:
-                lit_cluster.append(int(ce))
+                lit_cluster.append(np.int32(ce))
 
         # create mask marking all the entries captured by the cluster
-        mask = np.isin(pr[scalar_field], lit_cluster)
+        mask = np.isin(pr[scalar_field], np.array(lit_cluster))
+
+        # refine mask to avoid cascading
+        mask = np.logical_and(mask, np.logical_not(overall_mask))
 
         overall_mask = np.logical_or(overall_mask, mask)
 
-        pr[scalar_field][mask] = [key]
+        pr[scalar_field][mask] = np.int8(key)
 
     if default_class:
-        pr[scalar_field][np.logical_not(overall_mask)] = default_class
+        pr[scalar_field][np.logical_not(overall_mask)] = np.int8(default_class)
 
     if rename:
         pr[rename] = pr[scalar_field]
         las.remove_extra_dim(scalar_field)
             
-    if False in overall_mask and not default_class:
+    if np.bool(False) in overall_mask and not default_class:
         print("Warning: Some values have not been remapped")
 
 @hydra.main(version_base=None, config_path='configs/processor')
