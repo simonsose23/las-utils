@@ -15,14 +15,13 @@ renamed to x.
 
 if rename is set, the scalar_field is renamed to rename.
 '''
-def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_class):
-    # TODO: Adapt readme
+def cluster_classes(las, cluster_dict, scalar_field, rename=None, default_class=None):
     pr = las.points
 
     # create overall_mask to track points that have not been touched in the end
     overall_mask = np.full(len(pr), np.bool(False))
 
-    for key, cluster_expr in cluster_dict.items():
+    for new_id, cluster_expr in cluster_dict.items():
         # expand cluster expressions to literal cluster
         lit_cluster = []
 
@@ -40,7 +39,7 @@ def cluster_classes(las, cluster_dict, scalar_field, *, rename, default_class):
 
         overall_mask = np.logical_or(overall_mask, mask)
 
-        pr[scalar_field][mask] = np.int8(key)
+        pr[scalar_field][mask] = np.int8(new_id)
 
     if default_class:
         pr[scalar_field][np.logical_not(overall_mask)] = np.int8(default_class)
