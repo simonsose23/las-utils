@@ -20,23 +20,21 @@ class MockClusterClassObject():
     def execute(self, *args, **kwargs):
         self.calls.append({'args': args, 'kwargs': kwargs})
 
-class MockLaspyOpen():
+class MockLasReader():
 
-    def __enter__(self, *args, **kwargs):
-        header = laspy.open.__enter__(*args, **kwargs)
+    def __init__(self):
+        self.write_calls = []
 
-        return header
-    def __exit__(self, *args, **kwargs):
-        return laspy.open.__exit__(*args, **kwargs)
+    def read(self, *args, **kwargs):
+        return MockLasData(self.write_calls)
 
-class MockLasHeader(laspy.LasHeader):
+class MockLasData():
 
-    def __init__(self, orig):
-        pass
-        #super.__init__(orig)
+    def __init__(self, write_calls):
+        self.write_calls = write_calls
 
-    def read(self):
-        print("Woof!")
+    def write(self, *args, **kwargs):
+        self.write_calls.append({'args': args, 'kwargs': kwargs})
 
 def test_cluster_classes_clustering():
     # configure las object
@@ -62,7 +60,7 @@ def test_cluster_classes_rename():
     assert las_object.remove_extra_dim_calls == ['mock_field_name']
     assert np.array_equal(las_object.points['foo'], np.array([1]))
 
-def test_cluster_classes_default_value():
+def test_cluster_classes_default_class():
     scalar_array = [1, 2, 3, 4]
     las_object = MockLasObject(scalar_array)
 
@@ -84,14 +82,16 @@ def test_cluster_classes_wildcard():
 
 def test_file_handling(monkeypatch):
     cluster_obj = MockClusterClassObject()
+    mock_las_reader = MockLasReader()
 
-    #monkeypatch.setattr(laspy.open, "cluster_classes", cluster_obj.mock_cluster_classes)
+    monkeypatch.setattr(laspy.LasReader, "read", mock_las_reader.read)
     monkeypatch.setattr(ScalarClassClusterer, "execute", cluster_obj.execute)
 
     cfg = {'input_dir': 'tests/data/', 'output_dir': 'tests/data/', 'cluster': {}, 'scalar_field': 'mock_field_name', 'rename': 'bar', 'default_class': 2}
 
     main(cfg)
 
+    # check cluster call
     assert len(cluster_obj.calls) == 2
     
     call_args = cluster_obj.calls[0]['args']
@@ -102,3 +102,9 @@ def test_file_handling(monkeypatch):
 
     assert call_kwargs['rename'] == cfg['rename']
     assert call_kwargs['default_class'] == cfg['default_class']
+
+    # check for write call
+    tgt_file_names = [ call['args'][0] for call in mock_las_reader.write_calls ]
+
+    assert 'tests/data/foo-processed.las' in tgt_file_names
+    assert 'tests/data/foo2-processed.las' in tgt_file_names
