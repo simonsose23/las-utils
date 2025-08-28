@@ -1,6 +1,6 @@
-pc_folder: /SCB/test_realpcs_folder/
+pc_folder: /SCB/Datasets/urban-vegetation-3d
 merge_values: [1, 2, 3]
 from_scalar: 'specificclassid'
 onto_scalar: 'semclassid'
-write_offset: 7
+write_offset: 6
 onto_values: [1]
