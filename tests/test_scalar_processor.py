@@ -34,3 +34,13 @@ def test_cluster_classes_rename():
 
     assert las_object.remove_extra_dim_calls == ['mock_field_name']
     assert np.array_equal(las_object.points['foo'], np.array([1]))
+
+def test_cluster_classes_default_value():
+    scalar_array = [1, 2, 3, 4]
+    las_object = MockLasObject(scalar_array)
+
+    cluster_dict = {2: [2, 3, 4]}
+    
+    pc_proc.cluster_classes(las_object, cluster_dict, 'mock_field_name', default_class=3)
+
+    assert np.array_equal(las_object.points['mock_field_name'], np.array([3, 2, 2, 2]))
