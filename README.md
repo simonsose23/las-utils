@@ -5,20 +5,21 @@ A collection of tools to process scalar fields 3D point clouds (in LAS/LAZ forma
 ## Point Cloud Class Processor: `pc_class_processor.py`
 
 Perform multiple operations on point cloud scalar fields used for classification. It performs:
+
 - Cluster: Merge multiple classes together into one class
-- Remap: Assign a desired class id to the cluster 
+- Remap: Assign a desired class id to the cluster
 - Rename: Rename the classification scalar field name
 
 The operations are specified by a Hydra configuration file:
 
-| Key | Value |
-|-----|-------|
-|`input_dir`|Path to directory with point clouds to process|
-|`output_dir`|Path to directory where processed point clouds should be stored. Processed point clouds will have the suffix `-processed.{las,laz}`
-|`scalar_field`|Name of scalar field that contains the classification info. If in doubt, use `classification`|
-|`cluster`|Dictionary with value pairs $(x, Y)$. $Y=[y_1, \dots, y_n]$, where every $y_i$ with $1\leq i \leq n$ is a wildcard or an class id that should be clustered together. The resulting class will have $x$ as class ID. If you want to cluster a lot of classes together, you can use a wildcard: Replacing the last digits of the id with 'x' will include all possible ids that start with the non-x digits. For example, '19x' will include all ids from 190 to 199.|
-|`rename`|Optional. Name to rename the scalar field that contains the classification info to. If using a scalar name that is reserved by the LAS standard, keep in mind the possible values (for example, 'classification' is only assigned 5 bits, so only values 0-31)|
-|`default_class`|Optional. Class to assign to points that have not been remapped
+| Key             | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `input_dir`     | Path to directory with point clouds to process                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `output_dir`    | Path to directory where processed point clouds should be stored. Processed point clouds will have the suffix `-processed.{las,laz}`                                                                                                                                                                                                                                                                                                                                 |
+| `scalar_field`  | Name of scalar field that contains the classification info. If in doubt, use `classification`                                                                                                                                                                                                                                                                                                                                                                       |
+| `cluster`       | Dictionary with value pairs $(x, Y)$. $Y=[y_1, \dots, y_n]$, where every $y_i$ with $1\leq i \leq n$ is a wildcard or an class id that should be clustered together. The resulting class will have $x$ as class ID. If you want to cluster a lot of classes together, you can use a wildcard: Replacing the last digits of the id with 'x' will include all possible ids that start with the non-x digits. For example, '19x' will include all ids from 190 to 199. |
+| `rename`        | Optional. Name to rename the scalar field that contains the classification info to. If using a scalar name that is reserved by the LAS standard, keep in mind the possible values (for example, 'classification' is only assigned 5 bits, so only values 0-31)                                                                                                                                                                                                      |
+| `default_class` | Optional. Class to assign to points that have not been remapped. If None, non-remapped points will be deleted.                                                                                                                                                                                                                                                                                                                                                      |
 
 ## Point Cloud Scalar Merger: `pc_scalar_merger.py`
 

@@ -7,6 +7,17 @@ from progressbar import progressbar
 
 SUPPORTED_TYPES = ('.las', '.laz')
 
+def expand_cluster_expression(cluster_expr_list):
+    lit_cluster = []
+
+    for ce in cluster_expr_list:
+        if 'x' in str(ce):
+            lit_cluster += [np.int64(x) for x in range(int(ce.replace('x', '0')), int(ce.replace('x', '9')) + 1)]
+        else:
+            lit_cluster.append(np.int64(ce))
+
+    return lit_cluster
+
 class ScalarClassClusterer():
 
     '''
@@ -23,15 +34,9 @@ class ScalarClassClusterer():
         # create overall_mask to track points that have not been touched in the end
         overall_mask = np.full(len(pr), np.bool(False))
 
-        for new_id, cluster_expr in cluster_dict.items():
+        for new_id, cluster_expr_list in cluster_dict.items():
             # expand cluster expressions to literal cluster
-            lit_cluster = []
-
-            for ce in cluster_expr:
-                if 'x' in str(ce):
-                    lit_cluster += [np.int32(x) for x in range(int(ce.replace('x', '0')), int(ce.replace('x', '9')) + 1)]
-                else:
-                    lit_cluster.append(np.int32(ce))
+            lit_cluster = expand_cluster_expression(cluster_expr_list)
 
             # create mask marking all the entries captured by the cluster
             mask = np.isin(pr[scalar_field], np.array(lit_cluster))
@@ -45,15 +50,18 @@ class ScalarClassClusterer():
 
         if default_class:
             pr[scalar_field][np.logical_not(overall_mask)] = np.int8(default_class)
+        else:
+            las.points = pr[overall_mask]
+            pr = las.points
 
         if rename:
             pr[rename] = pr[scalar_field]
             las.remove_extra_dim(scalar_field)
                 
         if np.bool(False) in overall_mask and not default_class:
-            print("Warning: Some values have not been remapped")
+            print("Warning: Some points have been deleted since they have not been remapped.")
 
-@hydra.main(version_base=None, config_path='configs/processor')
+@hydra.main(version_base=None, config_path='../configs/processor')
 def main(cfg: DictConfig) -> None:
 
     # 0. Collect all las files to process
