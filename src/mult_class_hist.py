@@ -7,31 +7,18 @@ import math
 from matplotlib import colormaps
 from progressbar import progressbar
 
-# MAT_LIST = [
-#     "Building/Foundation",
-#     "Building/Roof",
-#     "Building/Walls",
-#     "Lot/Lot Surface",
-#     "Street/Road Marking",
-#     "Street/Road Surface",
-#     "Street/Sidewalk",
-#     "Street/Streetlight",
-#     "Street/Traffic Light",
-#     "Street/Vehicle",
-#     "Vegetation/Tree-Branches",
-#     "Vegetation/Tree-Leaves",
-#     "Vegetation/Tree-Stem"
-# ]
-
 MAT_LIST = [
+    "Fence",
+    "Road",
+    "Sidewalk",
     "Building",
-    "Soil",
-    "Street/Streetlight",
-    "Street/Traffic Light",
-    "Street/Vehicle",
-    "Vegetation/Tree-Branches",
-    "Vegetation/Tree-Leaves",
-    "Vegetation/Tree-Stem"
+    "Surface/Vegetation",
+    "Streetlight",
+    "Trafficlight",
+    "Car",
+    "Tree",
+    "Bush",
+    "Other"
 ]
 
 def get_hist(filename):
