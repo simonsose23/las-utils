@@ -1,16 +1,24 @@
-input_dir: /SCB/Datasets/PL3D
-output_dir: /SCB/Datasets/PL3D_processed
+# Dataset V2
+
+input_dir: /Users/simon/Documents/Studium/BP/Datasets/PL3D_test
+output_dir: /Users/simon/Documents/Studium/BP/Datasets/PL3D_test_processed
 cluster:
-  '0': ['3020302xx', '3020303xx']
-  '1': ['202020000']
-  '2': ['202030000', '202050000', '2020400xx']
-  '3': ['203000000']
-  '4': ['202060000']
-  '5': ['3020204xx']
-  '6': ['3020205xx']
-  '7': ['303040xxx']
-  '8': ['304020000']
-  '9': ['3040000xx', '30400001xx', '3040003xx', '3040004xx']
+  "0":
+    [
+      "3020300xx",
+      "3020301xx",
+      "3020302xx",
+      "3020303xx",
+      "3020304xx",
+      "3020306xx",
+      "3020307xx",
+    ]
+  "1": ["2020200xx", "2020300xx", "2020400xx", "2020500xx", "2020600xx"]
+  "2": ["203000000"]
+  "3": ["3020204xx"]
+  "4": ["3020205xx"]
+  "5": ["303040xxx"]
+  "6": ["304020000", "304050000"]
 scalar_field: class
 rename: classification
-default_class: 10
+default_class: ~
