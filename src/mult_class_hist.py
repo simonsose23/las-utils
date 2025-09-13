@@ -9,16 +9,12 @@ from progressbar import progressbar
 
 MAT_LIST = [
     "Fence",
-    "Road",
-    "Sidewalk",
+    "Ground",
     "Building",
-    "Surface/Vegetation",
     "Streetlight",
     "Trafficlight",
     "Car",
-    "Tree",
-    "Bush",
-    "Other"
+    "Tree"
 ]
 
 def get_hist(filename):
@@ -27,7 +23,7 @@ def get_hist(filename):
 
         pointrecord = las.points
 
-        matid = pointrecord['MaterialID']
+        matid = pointrecord['classification']
 
         #matid = np.append(matid, range(0, len(MAT_LIST)))
 
