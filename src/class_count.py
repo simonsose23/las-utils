@@ -17,7 +17,7 @@ MAT_LIST = [
 ]
 
 def get_class_counts(folder):
-    class_counts = np.zeros(shape=(len(MAT_LIST)))
+    class_counts = np.zeros(shape=(len(MAT_LIST)+1))
     
     for file in progressbar(os.listdir(folder)):
         with laspy.open(os.path.join(folder, file)) as fh:
@@ -28,6 +28,8 @@ def get_class_counts(folder):
             classid = pointrecord['classification']
 
             hist, _ = np.histogram(classid, bins=len(MAT_LIST))
+
+            hist = np.append(hist, len(classid))
 
             class_counts = class_counts + hist
 
@@ -46,7 +48,7 @@ if __name__ == '__main__':
         print(f'evalute folder {folder}')
         cc_dict[folder] = get_class_counts(folder)
 
-    cumul_cc = np.zeros(shape=len(MAT_LIST))
+    cumul_cc = np.zeros(shape=len(MAT_LIST)+1)
 
     for cc in cc_dict.values():
         cumul_cc = cumul_cc + cc
