@@ -1,20 +1,56 @@
+import argparse
+import os
 import laspy
 import numpy as np
+from progressbar import progressbar
 
+np.set_printoptions(suppress=True)
 
-for i in range(0, 47):
-    filename = f'/mnt/SUPERCOOL/pointclouds/pwest/pc-{i}.las'
-    with laspy.open(filename) as fh:
-        las = fh.read()
+MAT_LIST = [
+    "Fence",
+    "Ground",
+    "Building",
+    "Streetlight",
+    "Trafficlight",
+    "Car",
+    "Tree"
+]
 
-        pointrecord = las.points
+def get_class_counts(folder):
+    class_counts = np.zeros(shape=(len(MAT_LIST)))
+    
+    for file in progressbar(os.listdir(folder)):
+        with laspy.open(os.path.join(folder, file)) as fh:
+            las = fh.read()
 
-        matid = pointrecord['MaterialID']
+            pointrecord = las.points
 
-        hist, bin_edge = np.histogram(matid, bins=16)
+            classid = pointrecord['classification']
 
-        mask = hist == 0
+            hist, _ = np.histogram(classid, bins=len(MAT_LIST))
 
-        empty_classes = np.where(mask)[0]
+            class_counts = class_counts + hist
 
-        print(f'empty classes in {filename}: \t {empty_classes.tolist()}')
+    return class_counts
+
+if __name__ == '__main__':
+    argpaser = argparse.ArgumentParser(description='Plots point cloud class distribtion of all point cloud collections contained in the given folder')
+    argpaser.add_argument('parent_folder')
+    args = argpaser.parse_args()
+
+    cc_dict = {}
+
+    pc_folders = [os.path.join(args.parent_folder, f) for f in os.listdir(args.parent_folder) if os.path.isdir(os.path.join(args.parent_folder, f))]
+
+    for folder in pc_folders:
+        print(f'evalute folder {folder}')
+        cc_dict[folder] = get_class_counts(folder)
+
+    cumul_cc = np.zeros(shape=len(MAT_LIST))
+
+    for cc in cc_dict.values():
+        cumul_cc = cumul_cc + cc
+
+    cc_dict['total'] = cumul_cc
+
+    print(cc_dict)
