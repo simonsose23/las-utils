@@ -5,7 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from matplotlib import colormaps
+from matplotlib.ticker import MaxNLocator
 from progressbar import progressbar
+
+font = {'size'   : 16}
+
+plt.rc('font', **font)
 
 MAT_LIST = [
     "Fence",
@@ -40,7 +45,7 @@ if __name__ == '__main__':
     argpaser.add_argument('parent_folder')
     args = argpaser.parse_args()
 
-    pc_folders = [os.path.join(args.parent_folder, f) for f in os.listdir(args.parent_folder) if os.path.join(args.parent_folder, f)]
+    pc_folders = [os.path.join(args.parent_folder, f) for f in os.listdir(args.parent_folder) if os.path.isdir(os.path.join(args.parent_folder, f))]
 
     avg_hists = []
 
@@ -66,17 +71,21 @@ if __name__ == '__main__':
     colors = [ colormaps['Set2'](float(i)) for i in np.linspace(0, 1, num=len(MAT_LIST)) ]
 
     fig, axes = plt.subplots(math.ceil(num_plots/num_cols), num_cols, figsize=(5 * num_cols, 5 * math.ceil(num_plots/num_cols)), sharey=True)
-    print(avg_hists)
 
     for i, _zip in enumerate(zip(axes.flat, pc_folders)):
         ax, folder = _zip
 
+        if i % num_cols == 0:
+            ax.set_ylabel("Class distribution")
+
         ax.bar(MAT_LIST, avg_hists[i], color=colors, edgecolor='black')
         ax.set_title(os.path.split(folder)[1])
-        ax.set_ylabel("Density")
         ax.set_xticklabels(MAT_LIST, rotation=45, ha='right')
         ax.grid(axis='y')
         ax.set_yscale('log')
+        ax.yaxis.set_tick_params(labelleft=True)
+        ax.set_yticks([.001, .01, .1, .25, .5])
+        ax.set_yticklabels([r'$10^{-3}$', r'$10^{-2}$', r'$10^{-1}$', r'$2.5 \cdot 10^{-1}$',  r'$5 \cdot 10^{-1}$'])
 
 
     # remove unused axes
