@@ -47,6 +47,8 @@ if __name__ == '__main__':
 
     pc_folders = [os.path.join(args.parent_folder, f) for f in os.listdir(args.parent_folder) if os.path.isdir(os.path.join(args.parent_folder, f))]
 
+    pc_folders.sort()
+
     avg_hists = []
 
     for folder in pc_folders:
@@ -67,7 +69,7 @@ if __name__ == '__main__':
         avg_hists.append(overall_hist)
 
     num_plots = len(pc_folders)
-    num_cols = 2
+    num_cols = 5
     colors = [ colormaps['Set2'](float(i)) for i in np.linspace(0, 1, num=len(MAT_LIST)) ]
 
     fig, axes = plt.subplots(math.ceil(num_plots/num_cols), num_cols, figsize=(5 * num_cols, 5 * math.ceil(num_plots/num_cols)), sharey=True)
