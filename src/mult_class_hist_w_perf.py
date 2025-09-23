@@ -81,7 +81,7 @@ if __name__ == '__main__':
             ax.set_ylabel("Class distribution")
 
         ax.bar(MAT_LIST, avg_hists[i], color=colors, edgecolor='black')
-        ax.bar(MAT_LIST, PERFORMANCE, color='none', edgecolor='red')
+        ax.bar(MAT_LIST, [1-p for p in PERFORMANCE], color='none', edgecolor='red')
         ax.set_title(os.path.split(folder)[1])
         ax.set_xticklabels(MAT_LIST, rotation=45, ha='right')
         ax.grid(axis='y')
