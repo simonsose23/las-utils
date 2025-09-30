@@ -53,7 +53,7 @@ def draw_confmat(filename, orig_scalar, pred_scalar, ax, title):
     return img
 
 if __name__ == '__main__':
-    argpaser = argparse.ArgumentParser(description='Plots point cloud class distribtion of all point cloud collections contained in the given folder')
+    argpaser = argparse.ArgumentParser(description='Plots the confusion matrices of the 3D point clouds in the given folder')
     argpaser.add_argument('folder')
     argpaser.add_argument('orig_scalar')
     argpaser.add_argument('predicted_scalar')

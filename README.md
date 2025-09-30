@@ -4,11 +4,7 @@ A collection of tools to process scalar fields 3D point clouds (in LAS/LAZ forma
 
 ## Point Cloud Class Processor: `pc_class_processor.py`
 
-Perform multiple operations on point cloud scalar fields used for classification. It performs:
-
-- Cluster: Merge multiple classes together into one class
-- Remap: Assign a desired class id to the cluster
-- Rename: Rename the classification scalar field name
+Remap point cloud scalar fields used for classification.
 
 The operations are specified by a Hydra configuration file:
 
@@ -23,7 +19,7 @@ The operations are specified by a Hydra configuration file:
 
 ## Point Cloud Scalar Merger: `pc_scalar_merger.py`
 
-Merge an scalar field onto another scalar field.
+Merge a scalar field onto another scalar field.
 
 Configuration:
 |Key|Value|
@@ -35,6 +31,14 @@ Configuration:
 |`onto_values`|Optional. Values of `onto_scalar` to write values `from_scalar` onto. It can be thought of as a mask to `onto_scalar`.|
 |`write_offset`|Integer value by which to offset `from_scalar` values before writing them into `onto_scalar`. Should be `max(point_cloud['onto_scalar']) + 1`|
 
-## Multi-Point-Cloud Class Histogram
+## Multi-Point-Cloud Class Histogram: `mult_class_hist.py`
 
-Plot the class densities of all point cloud datasets in the given folder. A point cloud dataset is a folder with point clouds.
+Plot the class distribution of all point cloud datasets in the given folder. A point cloud dataset is a folder containing point clouds.
+
+`mult_class_hist_w_perf.py` plots the class distribution and superimposes the reverse $iou$ of the given class $iou$ values.
+
+## Confusion Matrices: `confmat.py`
+
+Plot confusion matrices of predicted point clouds.
+
+`python confmat.py <point cloud folder> <ground truth scalar name> <predicted scalar name>`
